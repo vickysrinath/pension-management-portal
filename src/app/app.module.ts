@@ -12,6 +12,7 @@ import { SignupComponent } from './signup/signup.component';
 import {CookieService } from 'ngx-cookie-service';
 import { ProcessPensionComponent } from './process-pension/process-pension.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
   ],
-  providers: [CookieService,{provide : HTTP_INTERCEPTORS,useClass : AuthInterceptorService,multi :true},AuthGuard],
+  providers: [CookieService,{provide : HTTP_INTERCEPTORS,useClass : AuthInterceptorService,multi :true},AuthGuard,{provide: LocationStrategy, useClass: HashLocationStrategy}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
