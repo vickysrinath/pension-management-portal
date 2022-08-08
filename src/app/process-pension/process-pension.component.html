@@ -1,0 +1,74 @@
+<div class="div-center">
+  <!-- <div class="content">
+
+
+  </div> -->
+  <form [formGroup]="SearchForm" (ngSubmit)="OnSearch()">
+    <div class="row">
+      <div class="col-sm">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Aadhaar Number"
+          formControlName="aadhaar"
+          min="12"
+          required
+        />
+      </div>
+      <div class="col-sm">
+        <div class="text-lg-left text-center">
+          <button
+          style="margin-right: 4px;"
+            type="submit"
+            class="btn btn-primary mb-2"
+            [disabled]="!this.SearchForm.valid"
+          >
+            Search
+          </button>
+          <button
+            type="reset"
+            class="btn btn-primary mb-2 "
+            (click)="OnReset()"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div *ngIf="error">
+    <p class="alert alert-danger text-center">{{errorMessage}}</p>
+  </div>
+
+  <div *ngIf="onSuccessSearch">
+    <div class="form-group row mt-md-5">
+      <div class="col-sm-6">
+        <label for="Name">Name</label>
+        <input type="text" class="form-control" [(ngModel)]="pensionServiceResponse.name" disabled />
+      </div>
+      <div class="col-sm-6">
+        <label for="DateOfBirth">Date of Birth</label>
+
+        <input type="date" class="form-control"   value="{{pensionServiceResponse.dateOfBirth}}" disabled/>
+      </div>
+    </div>
+
+    <div class="form-group row mt-md-5">
+      <div class="col-sm-6">
+        <label for="Pan">Pan</label>
+        <input type="text" class="form-control" [(ngModel)]="pensionServiceResponse.pan" disabled/>
+      </div>
+      <div class="col-sm-6">
+        <label for="PensionType">Pension Type</label>
+        <input type="text" class="form-control" [(ngModel)]="pensionServiceResponse.pensionType" disabled/>
+      </div>
+    </div>
+
+    <div class="form-group row mt-md-5">
+      <div class="col-sm-6">
+        <label for="PensionAmount">Pension Amount</label>
+        <input type="text" class="form-control" [(ngModel)]="pensionServiceResponse.pensionAmount" disabled/>
+      </div>
+    </div>
+  </div>
+</div>

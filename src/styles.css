@@ -1,0 +1,9 @@
+/* You can add global styles to this file, and also import other style files */
+
+
+html,body{
+  height: 100%;
+  margin: 0;
+  background-image: linear-gradient(to right top, #051937, #004d7a, #008793, #00bf72, #a8eb12);
+  background-attachment: fixed;
+}
