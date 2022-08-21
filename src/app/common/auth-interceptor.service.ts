@@ -16,6 +16,8 @@ export class AuthInterceptorService implements HttpInterceptor{
       exhaustMap(user => {
         console.log('Before :'+req)
         if(!this.cookieService.check('token')){
+          console.log("no-token")
+          console.log(req.body)
           return next.handle(req);
         }
 

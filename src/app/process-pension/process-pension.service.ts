@@ -1,6 +1,6 @@
-import { globalConstants } from './../common/global-constants';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 
 export interface  pensionServiceResponse{
@@ -22,6 +22,6 @@ export class ProcessPensionService {
   constructor(private http: HttpClient) { }
 
   processPension(aadhaarNumber : String){
-    return this.http.post<pensionServiceResponse>(globalConstants.processPensionUrl+'processPension',{'aadhaarNumber' : aadhaarNumber});
+    return this.http.post<pensionServiceResponse>(environment.processPensionUrl+'processPension',{'aadhaarNumber' : aadhaarNumber});
   }
 }
