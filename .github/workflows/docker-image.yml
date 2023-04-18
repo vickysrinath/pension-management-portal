@@ -32,4 +32,4 @@ jobs:
         ECR_REPOSITORY: githubdemo
         IMAGE_TAG: latest
       run: |
-        bash test.sh
+        ./test.sh
