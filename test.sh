@@ -1,2 +1,1 @@
-#!/bin/bash
-printf "EHello Test Script"
+echo "EHello Test Script"
