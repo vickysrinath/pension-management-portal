@@ -31,5 +31,5 @@ jobs:
         ECR_REPOSITORY: githubdemo
         IMAGE_TAG: latest
       run: |
-        chmod +x test.sh
-        ./test.sh
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
