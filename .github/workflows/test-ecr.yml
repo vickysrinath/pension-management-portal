@@ -2,11 +2,6 @@ name: My Workflow Dispatcher
 
 on:
   workflow_dispatch:
-    inputs:
-      my_choice:
-        description: 'Select a branch'
-        required: true
-        type: select
 
 jobs:
   build:
