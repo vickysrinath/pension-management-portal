@@ -108,7 +108,8 @@ jobs:
       - name: Update Amazon ECS service
         run: |
           aws ecs update-service \
-            --cluster ${{ github.event.inputs.environment == 'DEV' ? env.DEV_ECS_CLUSTER : env.QA_ECS_CLUSTER }} \
-            --service ${{ github.event.inputs.environment == 'DEV' ? env.DEV_ECS_SERVICE : env.QA_ECS_SERVICE }} \
+            --cluster "${{ github.event.inputs.environment == 'DEV' ? env.DEV_ECS_CLUSTER : env.QA_ECS_CLUSTER }}" \
+            --service "${{ github.event.inputs.environment == 'DEV' ? env.DEV_ECS_SERVICE : env.QA_ECS_SERVICE }}" \
             --force-new-deployment
+
 
