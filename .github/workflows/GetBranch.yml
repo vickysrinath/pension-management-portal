@@ -1,4 +1,4 @@
-name: Build and Deploy to ECR and ECS
+name: Get Branch
 
 on:
   workflow_dispatch:
@@ -7,29 +7,47 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # Get the list of branches using the GitHub API
+      # Fetch the list of branches
       - name: Get branch list
         id: branches
-        uses: octokit/request-action@v2.x
+        uses: andstor/file-changes-action@v1
         with:
-          route: GET /repos/:owner/:repo/branches
+          fetch-depth: 0
 
-      # Create a dropdown list of branches in the GitHub Actions UI
-      - name: Select branch
-        id: branch
-        uses: technote-space/action-select@v1.1.0
-        with:
-          prompt: 'Select the branch to build the Docker image for'
-          items: ${{ fromJson(steps.branches.outputs.data) | map (v => ({label: v.name, value: v.name})) | stringify }}
-
-      # Checkout the code for the selected branch
+      # Checkout the selected branch
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: ${{ steps.branch.outputs.selected.value }}
+          ref: ${{ github.event.inputs.branch }}
 
       # Build and push Docker image to ECR
       # ...
 
       # Deploy Docker image to ECS
       # ...
+
+  # Define a job to generate the list of branches
+  generate-branch-list:
+    runs-on: ubuntu-latest
+    outputs:
+      branches: ${{ steps.list-branches.outputs.branches }}
+    steps:
+      - name: List branches
+        id: list-branches
+        run: echo "::set-output name=branches::$(git branch -r --no-color | sed 's/origin\///')"
+
+  # Define a job to create the dropdown input
+  create-dropdown:
+    runs-on: ubuntu-latest
+    needs: generate-branch-list
+    outputs:
+      branch: ${{ steps.create-input.outputs.branch }}
+    steps:
+      - name: Create input
+        id: create-input
+        run: |
+          echo "::set-output name=branch::{\"description\": \"The branch to build the Docker image for\", \"required\": true, \"options\": {$(
+              for branch in $(echo "${{ needs.generate-branch-list.outputs.branches }}" | tr ' ' '\n'); do
+                  echo "\"${branch}\": {\"description\": \"${branch}\"},"
+              done | sed '$ s/.$//'
+          )}}"
