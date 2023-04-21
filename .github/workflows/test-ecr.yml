@@ -1,41 +1,17 @@
-name: My Workflow Dispatcher
-
 on:
   workflow_dispatch:
+    inputs:
+      my_choice:
+        description: 'Select an option'
+        required: true
+        options: # list of available options
+          - 'Option 1'
+          - 'Option 2'
+          - 'Option 3'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Get branches
-        id: branches
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /repos/:owner/:repo/branches
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.repository }}
-
-      - name: Extract branch names
-        id: extract-branch-names
-        run: |
-          # Extract the branch names from the API response
-          branch_names=$(echo '${{ steps.branches.outputs.data }}' | jq '.[] .name')
-          
-          # Remove the quotes and store as newline-separated string
-          branch_names=$(echo $branch_names | tr -d '"' | tr ' ' '\n')
-          
-          # Set the branch names as an output
-          echo "::set-output name=branches::$branch_names"
-
-      - name: Select a branch
+      - name: Display selection
         run: echo "You selected ${{ github.event.inputs.my_choice }}"
-        env:
-          MY_CHOICE: ${{ github.event.inputs.my_choice }}
-        env:
-          BRANCHES: ${{ steps.extract-branch-names.outputs.branches }}
-        inputs:
-          my_choice:
-            description: 'Select a branch'
-            required: true
-            type: select
-            options: ${{ env.BRANCHES }}
