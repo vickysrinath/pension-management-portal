@@ -7,8 +7,11 @@ on:
         description: 'The environment to deploy to'
         required: true
         default: 'DEV'
-    branches:
-      - feature/**
+        options:
+          DEV:
+            description: 'DEV environment'
+          SIT:
+            description: 'SIT environment'
 
 env:
   DEV_AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
