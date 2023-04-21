@@ -2,10 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches:
-      - main
-      - develop
-    
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
 
@@ -33,5 +32,5 @@ jobs:
         ECR_REPOSITORY: githubdemo
         IMAGE_TAG: latest
       run: |
-        chmod +x test.sh
-        ./test.sh
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
