@@ -1,12 +1,11 @@
-name: Hello
-
 on:
   workflow_dispatch:
     inputs:
       branch:
         description: 'The branch to build the Docker image for'
         required: true
-        options: ${{ steps.get_branches.outputs.branches }}
+        type: choice
+        choices: ${{ join(github.ref_namespaces, '\n') }}
 
 jobs:
   build-and-deploy:
@@ -16,17 +15,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: ${{ github.ref }}
-
+          ref: ${{ inputs.branch }}
+      
       # Build and push Docker image to ECR
       # ...
 
       # Deploy Docker image to ECS
       # ...
-
-      # Step to get the list of branches dynamically
-      - name: Get branches
-        id: get_branches
-        run: |
-          branches=$(git ls-remote --heads origin | awk '{print $2}' | awk -F '/' '{print $3}' | sort | uniq)
-          echo "::set-output name=branches::$(echo "$branches")"
