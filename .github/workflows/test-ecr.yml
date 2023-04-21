@@ -1,17 +1,32 @@
+name: Hello
+
 on:
   workflow_dispatch:
     inputs:
-      my_choice:
-        description: 'Select an option'
+      branch:
+        description: 'The branch to build the Docker image for'
         required: true
-        options: # list of available options
-          - 'Option 1'
-          - 'Option 2'
-          - 'Option 3'
+        options: ${{ steps.get_branches.outputs.branches }}
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Display selection
-        run: echo "You selected ${{ github.event.inputs.my_choice }}"
+      # Checkout the code for the specified branch
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+
+      # Build and push Docker image to ECR
+      # ...
+
+      # Deploy Docker image to ECS
+      # ...
+
+      # Step to get the list of branches dynamically
+      - name: Get branches
+        id: get_branches
+        run: |
+          branches=$(git ls-remote --heads origin | awk '{print $2}' | awk -F '/' '{print $3}' | sort | uniq)
+          echo "::set-output name=branches::$(echo "$branches")"
