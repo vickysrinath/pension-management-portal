@@ -4,14 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       environment:
+        type: choice
         description: 'The environment to deploy to'
-        required: true
-        default: 'DEV'
         options:
-          DEV:
-            description: 'DEV environment'
-          SIT:
-            description: 'SIT environment'
+        - DEV
+        - SIT
 
 env:
   DEV_AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
