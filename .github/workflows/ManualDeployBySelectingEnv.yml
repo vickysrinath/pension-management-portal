@@ -99,17 +99,35 @@ jobs:
     if: success() && needs.build-image.result == 'success'
     steps:
       - name: Configure AWS credentials
+        if: ${{ github.event.inputs.environment == 'DEV' }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          region: ${{ env.DEV_AWS_REGION }}
+
+      - name: Configure AWS credentials
+        if: ${{ github.event.inputs.environment == 'QA' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.QA_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.QA_AWS_SECRET_ACCESS_KEY }}
+          region: ${{ env.QA_AWS_REGION }}
 
       - name: Update Amazon ECS service
         run: |
-          aws ecs update-service \
-            --cluster "${{ github.event.inputs.environment == 'DEV' ? env.DEV_ECS_CLUSTER : env.QA_ECS_CLUSTER }}" \
-            --service "${{ github.event.inputs.environment == 'DEV' ? env.DEV_ECS_SERVICE : env.QA_ECS_SERVICE }}" \
-            --force-new-deployment
+          if [ "${{ github.event.inputs.environment }}" = "dev" ]
+          then
+            aws ecs update-service --cluster "${{ env.DEV_ECS_CLUSTER }}" --service "${{ env.DEV_ECS_SERVICE }}" --force-new-deployment
+            echo "Deployment completed for the dev environment."
+          fi
+
+          if [ "${{ github.event.inputs.environment }}" = "qa" ]
+          then
+            aws ecs update-service --cluster "${{ env.QA_ECS_CLUSTER }}" --service "${{ env.QA_ECS_SERVICE }}" --force-new-deployment
+            echo "Deployment completed for the qa environment."
+          fi
+
+
 
 
