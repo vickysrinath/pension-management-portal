@@ -1,0 +1,103 @@
+name: Deploy to ECR and ECS TO QA or Dev Manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The environment to deploy to'
+        required: true
+        default: 'DEV'
+    branches:
+      - feature/**
+
+env:
+  DEV_AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+  DEV_AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+  DEV_AWS_REGION: ap-south-1
+  QA_AWS_ACCESS_KEY_ID: ${{ secrets.QA_AWS_ACCESS_KEY_ID }}
+  QA_AWS_SECRET_ACCESS_KEY: ${{ secrets.QA_AWS_SECRET_ACCESS_KEY }}
+  QA_AWS_REGION: ap-south-1
+  AWS_REGION: ap-south-1
+  DEV_ECR_REPOSITORY: githubdemo-dev
+  QA_ECR_REPOSITORY: githubdemo-qa
+  DEV_ECS_SERVICE: Demo-dev
+  QA_ECS_SERVICE: Demo-qa
+  DEV_ECS_CLUSTER: Democluster-dev
+  QA_ECS_CLUSTER: Democluster-qa
+  DEV_ECS_TASK_DEFINITION: .aws/task-def-dev.json
+  QA_ECS_TASK_DEFINITION: .aws/task-def-qa.json
+  CONTAINER_NAME: MY_CONTAINER_NAME
+
+permissions:
+  contents: read
+
+jobs:
+  build-image:
+    name: Build, tag, and push image to Amazon ECR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ env.[${{ github.event.inputs.environment }}_AWS_ACCESS_KEY_ID] }}
+          aws-secret-access-key: ${{ env.[${{ github.event.inputs.environment }}_AWS_SECRET_ACCESS_KEY] }}
+          aws-region: ${{ env.[${{ github.event.inputs.environment }}_AWS_REGION] }}
+
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image-dev
+        if: ${{ github.event.inputs.environment == 'DEV' }}
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: latest
+          ECR_REPOSITORY: ${{ env.DEV_ECR_REPOSITORY }}
+          ECS_SERVICE: ${{ env.DEV_ECS_SERVICE }}
+          ECS_CLUSTER: ${{ env.DEV_ECS_CLUSTER }}
+          ECS_TASK_DEFINITION: ${{ env.DEV_ECS_TASK_DEFINITION }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image-qa
+        if: ${{ github.event.inputs.environment == 'QA' }}
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: latest
+          ECR_REPOSITORY: ${{ env.QA_ECR_REPOSITORY }}
+          ECS_SERVICE: ${{ env.QA_ECS_SERVICE }}
+          ECS_CLUSTER: ${{ env.QA_ECS_CLUSTER }}
+          ECS_TASK_DEFINITION: ${{ env.QA_ECS_TASK_DEFINITION }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+  deploy:
+    name: Deploy to Amazon ECS
+    runs-on: ubuntu-latest
+    needs: build-image
+    if: success() && needs.build-image.result == 'success'
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update Amazon ECS service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ github.event.inputs.environment == 'DEV' ? env.DEV_ECS_CLUSTER : env.QA_ECS_CLUSTER }} \
+            --service ${{ github.event.inputs.environment == 'DEV' ? env.DEV_ECS_SERVICE : env.QA_ECS_SERVICE }} \
+            --force-new-deployment
+
