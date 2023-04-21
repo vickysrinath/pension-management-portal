@@ -6,7 +6,7 @@ on:
       branch:
         description: 'The branch to build the Docker image for'
         required: true
-        default: 'main'
+        type: select
         options: ${{ steps.get_branches.outputs.branches }}
       environment:
         type: choice
