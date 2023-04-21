@@ -1,4 +1,4 @@
-name: Deploy to ECR and ECS TO QA or Dev Manually
+name: Build and Deploy to ECR and ECS | QA or Dev Manually |
 
 on:
   workflow_dispatch:
@@ -48,7 +48,7 @@ jobs:
           aws-region: ${{ env.DEV_AWS_REGION }}
 
       - name: Configure AWS credentials
-        if: ${{ github.event.inputs.environment == 'QA' }}
+        if: ${{ github.event.inputs.environment == 'SIT' }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.QA_AWS_ACCESS_KEY_ID }}
@@ -62,7 +62,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push image to Amazon ECR for DEV
         id: build-image-dev
         if: ${{ github.event.inputs.environment == 'DEV' }}
         env:
@@ -77,9 +77,9 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push image to Amazon ECR for SIT
         id: build-image-qa
-        if: ${{ github.event.inputs.environment == 'QA' }}
+        if: ${{ github.event.inputs.environment == 'SIT' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: latest
@@ -104,25 +104,25 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
-          region: ${{ env.DEV_AWS_REGION }}
+          aws-region: ${{ env.DEV_AWS_REGION }}
 
       - name: Configure AWS credentials
-        if: ${{ github.event.inputs.environment == 'QA' }}
+        if: ${{ github.event.inputs.environment == 'SIT' }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.QA_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.QA_AWS_SECRET_ACCESS_KEY }}
-          region: ${{ env.QA_AWS_REGION }}
+          aws-region: ${{ env.QA_AWS_REGION }}
 
       - name: Update Amazon ECS service
         run: |
-          if [ "${{ github.event.inputs.environment }}" = "dev" ]
+          if [ "${{ github.event.inputs.environment }}" = "DEV" ]
           then
             aws ecs update-service --cluster "${{ env.DEV_ECS_CLUSTER }}" --service "${{ env.DEV_ECS_SERVICE }}" --force-new-deployment
             echo "Deployment completed for the dev environment."
           fi
 
-          if [ "${{ github.event.inputs.environment }}" = "qa" ]
+          if [ "${{ github.event.inputs.environment }}" = "SIT" ]
           then
             aws ecs update-service --cluster "${{ env.QA_ECS_CLUSTER }}" --service "${{ env.QA_ECS_SERVICE }}" --force-new-deployment
             echo "Deployment completed for the qa environment."
