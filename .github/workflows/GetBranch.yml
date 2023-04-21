@@ -1,0 +1,35 @@
+name: Build and Deploy to ECR and ECS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Get the list of branches using the GitHub API
+      - name: Get branch list
+        id: branches
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/:owner/:repo/branches
+
+      # Create a dropdown list of branches in the GitHub Actions UI
+      - name: Select branch
+        id: branch
+        uses: technote-space/action-select@v1.1.0
+        with:
+          prompt: 'Select the branch to build the Docker image for'
+          items: ${{ fromJson(steps.branches.outputs.data) | map (v => ({label: v.name, value: v.name})) | stringify }}
+
+      # Checkout the code for the selected branch
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.branch.outputs.selected.value }}
+
+      # Build and push Docker image to ECR
+      # ...
+
+      # Deploy Docker image to ECS
+      # ...
