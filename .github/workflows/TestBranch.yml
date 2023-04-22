@@ -6,7 +6,8 @@ on:
         description: 'My Input'
         required: true
         default: 'default value'
-        if: ${{ startsWith(github.event.inputs.my_input, 'feature') }}
+        if: ${{ startsWith( github.event.inputs.my_input, 'feature') }}
+
 jobs:
   my_job:
     runs-on: ubuntu-latest
