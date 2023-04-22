@@ -13,5 +13,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+        with:
+          ref: my-branch
       - name: Display Current Branch
-        run: echo "Current Branch: ${GITHUB_REF#refs/heads/}"
+        run: |
+          echo "Current Branch: ${GITHUB_REF#refs/heads/}"
