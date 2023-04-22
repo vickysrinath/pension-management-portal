@@ -6,10 +6,9 @@ on:
         description: 'My Input'
         required: true
         default: 'default value'
-        if: ${{ startsWith( github.event.inputs.my_input, 'feature') }}
-
 jobs:
   my_job:
+    if: startsWith(github.event.inputs.my_input, 'feature')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -19,3 +18,4 @@ jobs:
       - name: Display Current Branch
         run: |
           echo "Current Branch: ${GITHUB_REF#refs/heads/}"
+
