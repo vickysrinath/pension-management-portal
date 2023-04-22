@@ -11,6 +11,9 @@ jobs:
     if: startsWith(github.event.inputs.my_input, 'feature')
     runs-on: ubuntu-latest
     steps:
+      - name: Display Current Branch
+        run: |
+          echo "Current Branch: ${{(github.event.inputs.my_input}}"
       - name: Checkout Code
         uses: actions/checkout@v2
         with:
