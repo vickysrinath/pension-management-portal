@@ -21,5 +21,3 @@ jobs:
 
       - name: Merge feature branch
         run: git merge --no-ff "${{ github.event.pull_request.head.ref }}"
-
-      - name: Build Docker image
