@@ -1,0 +1,24 @@
+name: My Workflow
+on:
+  workflow_dispatch:
+    inputs:
+      my_input:
+        description: 'My Input'
+        required: true
+        default: 'default value'
+jobs:
+  my_job:
+    if: startsWith(github.event.inputs.my_input, 'feature')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display Current Branch
+        run: |
+          echo "Current Branch: ${{ inputs.my_input }}"
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.my_input }}
+      - name: Display Current Branch
+        run: |
+          echo "Current Branch: ${GITHUB_REF#refs/heads/}"
+
