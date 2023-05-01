@@ -1,0 +1,25 @@
+name: PR Request
+
+on:
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+      - name: Priinting base
+        run: |
+          echo ${{ github.event.pull_request.base.ref }}
+          echo ${{ github.event.pull_request.title }}
+      - name: Create new branch
+        run: git checkout -b "$(echo '${{ github.event.pull_request.title }}' | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')"
+
+      - name: Merge feature branch
+        run: git merge --no-ff "${{ github.event.pull_request.head.ref }}"
+
+      - name: Build Docker image
