@@ -2,12 +2,27 @@ name: Name and Emai retrieve
 on:
   workflow_dispatch:
   
+
+
 jobs:
-  deploy:
-    name: Deploy
+  example_job:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: print username and password
-      run: |
-        echo "${{ github.repository_collaborator}}"
+      - name: Check Collaborator Status
+        id: is-collaborator
+        run: |
+          username=${{ env.GITHUB_ACTOR }}
+          is_collaborator=false
+          for collaborator in ${{ github.repository_collaborators }}
+          do
+            if [ "$username" = "$collaborator" ]; then
+              is_collaborator=true
+              break
+            fi
+          done
+          echo "::set-output name=is-collaborator::$is_collaborator"
+      - name: Perform Workflow Actions
+        if: steps.is-collaborator.outputs.is-collaborator == "true"
+        run: |
+          # Perform actions for collaborators
+
