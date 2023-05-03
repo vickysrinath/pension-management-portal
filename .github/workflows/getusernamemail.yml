@@ -1,8 +1,6 @@
-name: Name and Emai retrieve
+name: Name and Email Retrieve
 on:
   workflow_dispatch:
-  
-
 
 jobs:
   example_job:
@@ -22,7 +20,6 @@ jobs:
           done
           echo "::set-output name=is-collaborator::$is_collaborator"
       - name: Perform Workflow Actions
-        if: steps.is-collaborator.outputs.is-collaborator == "true"
+        if: steps.is-collaborator.outputs.is-collaborator
         run: |
-          echo "true"
-
+          echo "Performing workflow actions for collaborator"
