@@ -10,4 +10,4 @@ jobs:
     steps:
     - name: print username and password
       run: |
-        echo "${{ github.repository_collaborator}}
+        echo "${{ github.repository_collaborator}}"
