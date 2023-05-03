@@ -1,0 +1,13 @@
+name: Name and Emai retrieve
+on:
+  workflow_dispatch:
+  
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: print username and password
+      run: |
+        echo "${{ github.repository_collaborator}}
