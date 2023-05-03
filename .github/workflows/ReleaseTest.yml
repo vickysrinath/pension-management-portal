@@ -1,0 +1,16 @@
+name: Release Workflow
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code at release point
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      # Perform other actions on the repository at the release point here
