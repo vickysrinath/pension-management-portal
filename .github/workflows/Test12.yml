@@ -16,11 +16,11 @@ jobs:
       - name: Set environment variables
         run: |
           if [ "${{ github.event.inputs.environment }}" == "dev" ]; then
-            envvalue=dev_value
+            echo "envvalue=dev_value" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.environment }}" == "qa" ]; then
-            envvalue=qa_value
+            echo "envvalue=qa_value" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.environment }}" == "prod" ]; then
-            envvalue=prod_value
+            echo "envvalue=prod_value" >> $GITHUB_ENV
           else
             echo "Invalid environment specified."
             exit 1
